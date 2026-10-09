@@ -28,3 +28,7 @@ def clean_data() -> None:
 
     portugal = long[long["region"] == "PT"]
     portugal.to_csv(OUTPUT_FILE, index=False)
+
+
+if __name__ == "__main__":  # pragma: no cover
+    clean_data()
