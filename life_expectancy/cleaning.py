@@ -1,16 +1,17 @@
 """Cleaning script for the EU life expectancy data"""
+import argparse
 from pathlib import Path
 
 import pandas as pd
 
 DATA_DIR = Path(__file__).parent / "data"
 INPUT_FILE = DATA_DIR / "eu_life_expectancy_raw.tsv"
-OUTPUT_FILE = DATA_DIR / "pt_life_expectancy.csv"
+DEFAULT_REGION = "PT"
 ID_COLUMNS = ["unit", "sex", "age", "region"]
 
 
-def clean_data() -> None:
-    """Load the raw TSV, reshape to long format, clean it and save the PT data."""
+def clean_data(region: str = DEFAULT_REGION) -> None:
+    """Load the raw TSV, reshape to long format, clean it and save one region's data."""
     raw = pd.read_csv(INPUT_FILE, sep="\t")
 
     # First column packs "unit,sex,age,geo\time" into one field
@@ -26,9 +27,14 @@ def clean_data() -> None:
     )
     long = long.dropna(subset=["value"])
 
-    portugal = long[long["region"] == "PT"]
-    portugal.to_csv(OUTPUT_FILE, index=False)
+    selected = long[long["region"] == region]
+    output_file = DATA_DIR / f"{region.lower()}_life_expectancy.csv"
+    selected.to_csv(output_file, index=False)
 
 
 if __name__ == "__main__":  # pragma: no cover
-    clean_data()
+    parser = argparse.ArgumentParser(description="Clean the EU life expectancy data")
+    parser.add_argument(
+        "--region", default=DEFAULT_REGION, help="region code (default: PT)"
+    )
+    clean_data(parser.parse_args().region)
