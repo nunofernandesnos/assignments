@@ -2,7 +2,7 @@
 import pandas as pd
 import pytest
 
-from life_expectancy import cleaning
+from life_expectancy import load
 
 from . import FIXTURES_DIR
 
@@ -10,7 +10,7 @@ from . import FIXTURES_DIR
 @pytest.fixture(scope="session")
 def eu_life_expectancy_raw() -> pd.DataFrame:
     """Fixture to load a sample of the raw input data"""
-    return cleaning.load_data(FIXTURES_DIR / "eu_life_expectancy_raw.tsv")
+    return load.load_data(FIXTURES_DIR / "eu_life_expectancy_raw.tsv")
 
 
 @pytest.fixture(scope="session")
