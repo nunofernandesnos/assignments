@@ -1,15 +1,18 @@
 """Entry point for cleaning and saving life expectancy data."""
 import argparse
 
+import pandas as pd
+
 from life_expectancy import cleaning
 
 
-def main(region: str = cleaning.DEFAULT_REGION) -> None:
+def main(region: str = cleaning.DEFAULT_REGION) -> pd.DataFrame:
     """Load, clean and save the life expectancy data of a region."""
     raw = cleaning.load_data()
     cleaned = cleaning.clean_data(raw, region)
     output_file = cleaning.DATA_DIR / f"{region.lower()}_life_expectancy.csv"
     cleaning.save_data(cleaned, output_file)
+    return cleaned
 
 
 if __name__ == "__main__":  # pragma: no cover
