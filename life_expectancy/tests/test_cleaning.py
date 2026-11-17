@@ -1,40 +1,46 @@
 """Tests for the cleaning module"""
+from pathlib import Path
+from unittest.mock import patch
+
 import pandas as pd
 
-from life_expectancy import cleaning
 from life_expectancy.cleaning import clean_data, load_data, save_data
-from life_expectancy.main import main
-from . import OUTPUT_DIR
+
+from . import FIXTURES_DIR
 
 
-def test_clean_data(pt_life_expectancy_expected):
-    """Run `main` and compare the output file to the expected output"""
-    main()
-    pt_life_expectancy_actual = pd.read_csv(
-        OUTPUT_DIR / "pt_life_expectancy.csv"
-    )
-    pd.testing.assert_frame_equal(
-        pt_life_expectancy_actual, pt_life_expectancy_expected
-    )
+def test_load_data(eu_life_expectancy_raw):
+    """Loading the raw fixture file returns its content as a DataFrame"""
+    loaded = load_data(FIXTURES_DIR / "eu_life_expectancy_raw.tsv")
+    pd.testing.assert_frame_equal(loaded, eu_life_expectancy_raw)
+    assert not loaded.empty
 
 
-def test_clean_data_other_region(tmp_path, monkeypatch):
-    """Run `main` for a non-default region and check the output file"""
-    monkeypatch.setattr(cleaning, "DATA_DIR", tmp_path)
-    main("FR")
-    fr_life_expectancy = pd.read_csv(tmp_path / "fr_life_expectancy.csv")
-    assert not fr_life_expectancy.empty
-    assert set(fr_life_expectancy["region"]) == {"FR"}
-
-
-def test_load_clean_save(tmp_path, pt_life_expectancy_expected):
-    """Each step works on its own: load, clean in memory, then save"""
-    cleaned = clean_data(load_data())
+def test_clean_data(eu_life_expectancy_raw, pt_life_expectancy_expected):
+    """Cleaning the raw sample for the default region gives the expected output"""
+    cleaned = clean_data(eu_life_expectancy_raw)
     pd.testing.assert_frame_equal(
         cleaned.reset_index(drop=True), pt_life_expectancy_expected
     )
-    output_file = tmp_path / "out.csv"
-    save_data(cleaned, output_file)
-    pd.testing.assert_frame_equal(
-        pd.read_csv(output_file), pt_life_expectancy_expected
-    )
+
+
+def test_clean_data_other_region(eu_life_expectancy_raw):
+    """Cleaning for another region only keeps that region"""
+    cleaned = clean_data(eu_life_expectancy_raw, "FR")
+    assert not cleaned.empty
+    assert set(cleaned["region"]) == {"FR"}
+
+
+def test_clean_data_does_not_modify_input(eu_life_expectancy_raw):
+    """Cleaning must not mutate the raw DataFrame"""
+    before = eu_life_expectancy_raw.copy()
+    clean_data(eu_life_expectancy_raw)
+    pd.testing.assert_frame_equal(eu_life_expectancy_raw, before)
+
+
+def test_save_data(pt_life_expectancy_expected):
+    """Saving data calls `to_csv` without writing any file"""
+    output_file = Path("out.csv")
+    with patch("pandas.DataFrame.to_csv") as to_csv_mock:
+        save_data(pt_life_expectancy_expected, output_file)
+    to_csv_mock.assert_called_once_with(output_file, index=False)
