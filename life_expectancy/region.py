@@ -1,6 +1,21 @@
 from enum import Enum
 from typing import List
 
+_NON_COUNTRY_CODES = frozenset(
+    {
+        "DE_TOT",
+        "EA18",
+        "EA19",
+        "EEA30_2007",
+        "EEA31",
+        "EFTA",
+        "EU27_2007",
+        "EU27_2020",
+        "EU28",
+        "FX",
+    }
+)
+
 
 class Region(Enum):
     AL = "AL"
@@ -62,17 +77,7 @@ class Region(Enum):
 
     @classmethod
     def get_countries(cls) -> List["Region"]:
-        non_countries = {
-            "DE_TOT",
-            "EA18",
-            "EA19",
-            "EEA30_2007",
-            "EEA31",
-            "EFTA",
-            "EU27_2007",
-            "EU27_2020",
-            "EU28",
-            "FX",
-        }
-        return [region for region in cls if region.value not in non_countries]
+        return [
+            region for region in cls if region.value not in _NON_COUNTRY_CODES
+        ]
 
