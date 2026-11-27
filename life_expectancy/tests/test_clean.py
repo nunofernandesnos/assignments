@@ -2,6 +2,7 @@
 import pandas as pd
 
 from life_expectancy.clean import clean_data
+from life_expectancy.region import Region
 
 
 def test_clean_data(eu_life_expectancy_raw, pt_life_expectancy_expected):
@@ -14,7 +15,7 @@ def test_clean_data(eu_life_expectancy_raw, pt_life_expectancy_expected):
 
 def test_clean_data_other_region(eu_life_expectancy_raw):
     """Cleaning for another region only keeps that region"""
-    cleaned = clean_data(eu_life_expectancy_raw, "FR")
+    cleaned = clean_data(eu_life_expectancy_raw, Region.FR)
     assert not cleaned.empty
     assert set(cleaned["region"]) == {"FR"}
 

@@ -5,6 +5,7 @@ import pandas as pd
 
 from life_expectancy import load
 from life_expectancy.main import main
+from life_expectancy.region import Region
 
 
 def test_main(eu_life_expectancy_raw, pt_life_expectancy_expected):
@@ -29,7 +30,7 @@ def test_main_other_region(eu_life_expectancy_raw):
         "pandas.DataFrame.to_csv"
     ) as to_csv_mock:
         load_data_mock.return_value = eu_life_expectancy_raw
-        cleaned = main("FR")
+        cleaned = main(Region.FR)
     to_csv_mock.assert_called_once_with(
         load.DATA_DIR / "fr_life_expectancy.csv", index=False
     )
