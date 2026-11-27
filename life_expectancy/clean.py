@@ -1,17 +1,8 @@
-"""Cleaning script for the EU life expectancy data"""
-from pathlib import Path
-
+"""Cleaning of the EU life expectancy data"""
 import pandas as pd
 
-DATA_DIR = Path(__file__).parent / "data"
-INPUT_FILE = DATA_DIR / "eu_life_expectancy_raw.tsv"
 DEFAULT_REGION = "PT"
 ID_COLUMNS = ["unit", "sex", "age", "region"]
-
-
-def load_data(input_file: Path = INPUT_FILE) -> pd.DataFrame:
-    """Load the raw TSV data."""
-    return pd.read_csv(input_file, sep="\t")
 
 
 def clean_data(raw: pd.DataFrame, region: str = DEFAULT_REGION) -> pd.DataFrame:
@@ -31,8 +22,3 @@ def clean_data(raw: pd.DataFrame, region: str = DEFAULT_REGION) -> pd.DataFrame:
     long = long.dropna(subset=["value"])
 
     return long[long["region"] == region]
-
-
-def save_data(data: pd.DataFrame, output_file: Path) -> None:
-    """Save the data to a CSV file."""
-    data.to_csv(output_file, index=False)
