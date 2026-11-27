@@ -1,11 +1,13 @@
 """Cleaning of the EU life expectancy data"""
 import pandas as pd
 
-DEFAULT_REGION = "PT"
+from .region import Region
+
+DEFAULT_REGION = Region.PT
 ID_COLUMNS = ["unit", "sex", "age", "region"]
 
 
-def clean_data(raw: pd.DataFrame, region: str = DEFAULT_REGION) -> pd.DataFrame:
+def clean_data(raw: pd.DataFrame, region: Region = DEFAULT_REGION) -> pd.DataFrame:
     """Reshape the raw data to long format, clean it and select one region."""
     # First column packs "unit,sex,age,geo\time" into one field
     first_column = raw.columns[0]
@@ -21,4 +23,4 @@ def clean_data(raw: pd.DataFrame, region: str = DEFAULT_REGION) -> pd.DataFrame:
     )
     long = long.dropna(subset=["value"])
 
-    return long[long["region"] == region]
+    return long[long["region"] == region.value]
